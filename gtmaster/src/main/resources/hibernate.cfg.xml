@@ -12,8 +12,6 @@
             com.mysql.cj.jdbc.Driver
         </property>
 
-        <!-- Assume test is the database name -->
-
         <property name = "hibernate.connection.url">
             jdbc:mysql://localhost/mysql
         </property>
@@ -26,7 +24,7 @@
             gtdb
         </property>
         
-        <property name="hibernate.hbm2ddl.auto">update</property>
+        <property name="hbm2ddl.auto">create</property>
 
 
     </session-factory>

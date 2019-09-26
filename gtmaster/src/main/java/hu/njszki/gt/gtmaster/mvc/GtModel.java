@@ -15,8 +15,8 @@ public class GtModel {
 
     private GtModel() {
         sessionFactory = new Configuration()
-                .addAnnotatedClass(User.class)
                 .configure()
+                .addAnnotatedClass(User.class)
                 .buildSessionFactory();
     }
 
@@ -33,7 +33,7 @@ public class GtModel {
 
     public List<User> getUsers() {
         Session session = openSession();
-        List<User> result = new LinkedList<>();
+        List<User> result = session.createQuery("FROM User", User.class).list();
         session.close();
         return result;
     }

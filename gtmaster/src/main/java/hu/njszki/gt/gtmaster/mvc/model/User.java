@@ -3,9 +3,10 @@ package hu.njszki.gt.gtmaster.mvc.model;
 import javax.persistence.*;
 
 @Entity
+@Table(name = "GtUser")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     public String getUserName() {
