@@ -1,7 +1,6 @@
 package hu.njszki.gt.gtmaster.mvc;
 
-import hu.njszki.gt.gtmaster.mvc.model.Role;
-import hu.njszki.gt.gtmaster.mvc.model.User;
+import hu.njszki.gt.gtmaster.mvc.model.*;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -20,6 +19,9 @@ public class GtModel {
                 .configure()
                 .addAnnotatedClass(Role.class)
                 .addAnnotatedClass(User.class)
+                .addAnnotatedClass(Beka.class)
+                .addAnnotatedClass(BekaTeam.class)
+                .addAnnotatedClass(Golya.class)
                 .buildSessionFactory();
         Session session = openSession();
         int resultCount = session.createQuery("FROM Role WHERE name='ADMIN'", Role.class).list().size();
