@@ -1,8 +1,10 @@
 package hu.njszki.gt.gtmaster.mvc;
 
+import hu.njszki.gt.gtmaster.mvc.model.Role;
 import hu.njszki.gt.gtmaster.mvc.model.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
 import java.util.LinkedList;
@@ -16,11 +18,36 @@ public class GtModel {
     private GtModel() {
         sessionFactory = new Configuration()
                 .configure()
+                .addAnnotatedClass(Role.class)
                 .addAnnotatedClass(User.class)
                 .buildSessionFactory();
+        Session session = openSession();
+        int resultCount = session.createQuery("FROM Role WHERE name='ADMIN'", Role.class).list().size();
+        if (resultCount == 0) {
+            Transaction tx = session.beginTransaction();
+            Role adminRole = new Role();
+            adminRole.setName("ADMIN");
+            Role userRole = new Role();
+            userRole.setName("USER");
+            session.save(adminRole);
+            session.save(userRole);
+            User testUser = new User();
+            testUser.setUserName("alma");
+            testUser.setPassword("xyz");
+            testUser.getRoles().add(userRole);
+            session.save(testUser);
+
+            testUser = new User();
+            testUser.setPassword("neugt");
+            testUser.setUserName("neugt");
+            testUser.getRoles().add(adminRole);
+            session.save(testUser);
+            tx.commit();
+        }
+        session.close();
     }
 
-    private Session openSession() {
+    public Session openSession() {
         return sessionFactory.openSession();
     }
 
@@ -31,10 +58,11 @@ public class GtModel {
         return instance;
     }
 
-    public List<User> getUsers() {
-        Session session = openSession();
+    public List<User> getUsers(Session session) {
         List<User> result = session.createQuery("FROM User", User.class).list();
-        session.close();
         return result;
     }
+
+
+
 }

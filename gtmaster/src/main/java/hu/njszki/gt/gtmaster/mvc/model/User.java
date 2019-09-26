@@ -1,6 +1,8 @@
 package hu.njszki.gt.gtmaster.mvc.model;
 
 import javax.persistence.*;
+import java.util.LinkedList;
+import java.util.List;
 
 @Entity
 @Table(name = "GtUser")
@@ -25,18 +27,17 @@ public class User {
         this.password = password;
     }
 
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
+    public List<Role> getRoles() {
+        return roles;
     }
 
     @Column
     private String userName;
     @Column
     private String password;
-    @Column
-    private String role;
+    @OneToMany
+    @JoinTable(name = "UserRoles",
+            joinColumns = {@JoinColumn(name = "USER_ROLE")},
+            inverseJoinColumns = {@JoinColumn(name = "ROLE_USER")})
+    private List<Role> roles = new LinkedList<>();
 }
