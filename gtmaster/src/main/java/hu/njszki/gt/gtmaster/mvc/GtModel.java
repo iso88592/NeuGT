@@ -6,7 +6,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class GtModel {
@@ -22,6 +21,8 @@ public class GtModel {
                 .addAnnotatedClass(Beka.class)
                 .addAnnotatedClass(BekaTeam.class)
                 .addAnnotatedClass(Golya.class)
+                .addAnnotatedClass(Calendar.class)
+                .addAnnotatedClass(Event.class)
                 .buildSessionFactory();
         Session session = openSession();
         int resultCount = session.createQuery("FROM Role WHERE name='ADMIN'", Role.class).list().size();

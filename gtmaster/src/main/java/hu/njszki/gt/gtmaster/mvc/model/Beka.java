@@ -1,6 +1,8 @@
 package hu.njszki.gt.gtmaster.mvc.model;
 
 import javax.persistence.*;
+import java.util.LinkedList;
+import java.util.List;
 
 @Entity
 public class Beka {
@@ -11,6 +13,15 @@ public class Beka {
     @OneToOne
     private User user;
 
-    @OneToOne
+    @ManyToOne
     private BekaTeam bekaTeam;
+
+    @Column
+    private byte[] photo;
+
+    @Column
+    private String greeting;
+
+    @OneToMany(mappedBy = "responsible")
+    private List<Event> responsibleFor = new LinkedList<>();
 }
