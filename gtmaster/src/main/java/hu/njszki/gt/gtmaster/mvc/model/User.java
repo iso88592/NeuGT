@@ -35,9 +35,20 @@ public class User {
     private String userName;
     @Column
     private String password;
-    @OneToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "UserRoles",
             joinColumns = {@JoinColumn(name = "USER_ROLE")},
             inverseJoinColumns = {@JoinColumn(name = "ROLE_USER")})
     private List<Role> roles = new LinkedList<>();
+
+    public int getId() {
+        return id;
+    }
+
+    public boolean isAdmin() {
+        for (Role role :roles) {
+            if (role.getName().equals("ADMIN")) return true;
+        }
+        return false;
+    }
 }

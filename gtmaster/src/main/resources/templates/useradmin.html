@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="https://thymeleaf.org" lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}"></title>
+</head>
+<body>
+<div th:insert="admin.html :: header">
+</div>
+<div>
+    <h2>Felhasználók:</h2>
+    <div>
+        <table>
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Felhasználónév</th>
+                <th>Jelszó változtatás</th>
+                <th>Admin</th>
+                <th>Törlés</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="gtuser, rowStat: ${gtusers}">
+                <td th:text="${gtuser.id}">1</td>
+                <td th:text="${gtuser.userName}">neugt</td>
+                <td>
+                    <form method="post" action="/admin/users/chpass">
+                        <input type="hidden" th:value="${gtuser.id}" name="id">
+                        <input type="password" name="password">
+                        <input type="submit" value="Jelszó módosítása">
+                    </form>
+                </td>
+
+                <td>
+                    <form method="post" action="/admin/users/makeadmin">
+                        <input type="hidden" th:value="${gtuser.id}" name="id">
+                        <input type="submit" th:value="${gtuser.isAdmin()} ? '-' : '+'">
+                    </form>
+                </td>
+                <td>
+                    <form method="post" action="/admin/users/rmuser">
+                        <input type="hidden" th:value="${gtuser.id}" name="id">
+                        <input type="submit" value="X">
+                    </form>
+                </td>
+<!--                <td th:text="${gtuser.password}">****</td>-->
+            </tr>
+            <tr>
+                <td colspan=X"5" style="background-color: gray"></td>
+            </tr>
+            <tr>
+                <form method="post" action="/admin/users/new">
+                <td>+</td>
+                <td><input type="text" name="userName"></td>
+                <td><input type="password" name="password"></td>
+                <td><input type="checkbox" name="isAdmin"></td>
+                <td><input type="submit" value="hozzáad"></td>
+                </form>
+            </tr>
+            </tbody>
+        </table>
+</div>
+</div>
+</body>
+</html>

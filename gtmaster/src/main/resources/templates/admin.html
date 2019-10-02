@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="https://thymeleaf.org" lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}"></title>
+</head>
+<body>
+<div th:fragment="header">
+<h1><a href="/admin/">Admin</a></h1>
+<ul>
+    <li>
+        <a href="/admin/users">Felhasználók</a>
+    </li>
+    <li>
+        <a href="/admin/beka">Békák</a>
+    </li>
+    <li>
+        <a href="/admin/golya">Gólyák</a>
+    </li>
+    <li>
+        <a href="/admin/events">Események</a>
+    </li>
+
+</ul>
+</div>
+</body>
+</html>

@@ -1,5 +1,7 @@
 package hu.njszki.gt.gtmaster.mvc.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -12,6 +14,7 @@ public class Golya {
     @Column
     private String name;
 
+    @JsonIgnore
     @Column
     private Date birthDate;
 
@@ -27,6 +30,7 @@ public class Golya {
     @Column
     private String parentPhone;
 
+    @JsonIgnore
     @ManyToOne
     private BekaTeam bekaTeam;
 

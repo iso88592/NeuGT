@@ -45,6 +45,7 @@ public class GtModel {
             testUser.setUserName("neugt");
             testUser.getRoles().add(adminRole);
             session.save(testUser);
+
             tx.commit();
         }
         session.close();
@@ -67,5 +68,22 @@ public class GtModel {
     }
 
 
+    public Beka getBeka(int id, Session session) {
+        return session.get(Beka.class, id);
+    }
 
+    private Role findRole(Session session, String roleName) {
+        List<Role> roles = session.createQuery("FROM Role", Role.class).list();
+        for (Role role : roles) {
+            if (role.getName().equals(roleName)) return role;
+        }
+        return null;
+    }
+
+    public Role adminRole(Session session) {
+        return findRole(session, "ADMIN");
+    }
+    public Role userRole(Session session) {
+        return findRole(session, "USER");
+    }
 }
