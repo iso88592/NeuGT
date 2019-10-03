@@ -62,6 +62,17 @@ public class AdminController {
         return modelAndView;
     }
 
+    @RequestMapping(path = "/admin/team")
+    public ModelAndView adminTeam() {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("teamadmin");
+        modelAndView.addObject("title", "Gólyatábor admin");
+        Session session = GtModel.getInstance().openSession();
+        modelAndView.addObject("teams", GtModel.getInstance().getTeams(session));
+        session.close();
+        return modelAndView;
+    }
+
     @RequestMapping(path = "/admin/users/new", method = RequestMethod.POST)
     public RedirectView newUser(@RequestParam String userName,
                                 @RequestParam String password,
@@ -76,6 +87,18 @@ public class AdminController {
         tx.commit();
         session.close();
         return new RedirectView("/admin/users");
+    }
+
+    @RequestMapping(path = "/admin/team/new", method = RequestMethod.POST)
+    public RedirectView newUser(@RequestParam String name) {
+        Session session = GtModel.getInstance().openSession();
+        Transaction tx = session.beginTransaction();
+        BekaTeam bekaTeam = new BekaTeam();
+        bekaTeam.setName(name);
+        session.save(bekaTeam);
+        tx.commit();
+        session.close();
+        return new RedirectView("/admin/team");
     }
 
     @RequestMapping(path = "/admin/beka/new", method = RequestMethod.POST)
@@ -107,11 +130,19 @@ public class AdminController {
 
     @RequestMapping(path = "/admin/beka/update", method = RequestMethod.POST)
     public RedirectView updateBeka(@RequestParam int id,
-                                   @RequestParam int userId) {
+                                   @RequestParam(defaultValue = "0") int userId,
+                                   @RequestParam(defaultValue = "0") int teamId) {
         Session session = GtModel.getInstance().openSession();
         Transaction tx = session.beginTransaction();
         Beka beka = GtModel.getInstance().getBeka(id, session);
-        beka.setUser(GtModel.getInstance().getUsers(session).stream().filter(x->x.getId() == userId).findFirst().get());
+        if (userId != 0) beka.setUser(GtModel.getInstance().getUsers(session).stream().filter(x->x.getId() == userId).findFirst().get());
+        if (teamId != 0) {
+            if (teamId == -1) {
+                beka.setBekaTeam(null);
+            } else {
+                beka.setBekaTeam(GtModel.getInstance().getTeams(session).stream().filter(x -> x.getId() == teamId).findFirst().get());
+            }
+        }
         session.save(beka);
         tx.commit();
         session.close();

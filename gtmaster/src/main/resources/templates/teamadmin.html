@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="https://thymeleaf.org" lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}"></title>
+    <link rel="stylesheet" type="text/css" href="../static/css/szopki.css" th:href="@{/css/szopki.css}">
+</head>
+<body>
+<div th:insert="admin.html :: header">
+</div>
+<div>
+
+
+    <h2>Csapatok:</h2><hr>
+
+    <div class="tablazat">
+        <table>
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Csapatnév</th>
+                <th>Törlés</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="team, rowStat: ${teams}">
+                <td th:text="${team.id}">1</td>
+                <td th:text="${team.name}">neugt</td>
+
+                <td>
+                    <form method="post" action="/admin/team/rm">
+                        <input type="hidden" th:value="${team.id}" name="id">
+                        <input type="submit" value="X">
+                    </form>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" style="background-color: gray"></td>
+            </tr>
+            <tr>
+                <form method="post" action="/admin/team/new">
+                    <td>+</td>
+                    <td><input type="text" name="name"></td>
+                    <td><input type="submit" value="hozzáad"></td>
+                </form>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

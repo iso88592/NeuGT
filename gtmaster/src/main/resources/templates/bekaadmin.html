@@ -24,18 +24,17 @@
             <tr th:each="beka, rowStat: ${bekas}">
                 <td><a th:href="${'/show/beka/'+beka.id}" th:text="${beka.id}"></a></td>
                 <td>
-                    <form method="post" action="/admin/beka/chuser">
-                        <div
-                                th:id="${'u' + beka.id}"
-                                th:insert="bekaadmin.html :: userNames"
-                                th:with="selected=${beka.getUserId()}, change=${'changeBekaUser(''' + beka.id + ''');'}"></div>
-                    </form>
+                    <div
+                            th:id="${'u' + beka.id}"
+                            th:insert="bekaadmin.html :: userNames"
+                            th:with="selected=${beka.getUserId()}, change=${'changeBekaUser(''' + beka.id + ''');'}"></div>
                 </td>
 
                 <td>
-                    <form method="post" action="/admin/beka/chteam">
-                        <div th:insert="bekaadmin.html :: teams" th:with="selected=${beka.getTeamId()}"></div>
-                    </form>
+                    <div
+                            th:id="${'t' + beka.id}"
+                            th:insert="bekaadmin.html :: teams"
+                            th:with="selected=${beka.getTeamId()}, change=${'changeBekaTeam(''' + beka.id + ''');'}"></div>
                 </td>
                 <td>
                     <form method="post" action="/admin/beka/rm">
@@ -58,7 +57,7 @@
                         </select>
                     </td>
                     <td>
-                        <select th:fragment="teams" name="team">
+                        <select th:fragment="teams" name="team" th:attr="onchange=${change}">
                             <option th:each="team, rowStat: ${teams}" th:text="${team.name}"
                                     th:value="${team.id}"
                                     th:selected="${team.id==selected}"></option>
@@ -73,12 +72,26 @@
 </div>
 <script type="text/javascript">
     function changeBekaUser(userId) {
-        var newUserIndex = document.getElementById('u'+userId).firstChild.value;
+        var newUserIndex = document.getElementById('u' + userId).firstChild.value;
         var xhttp = new XMLHttpRequest();
         xhttp.open("POST", "/admin/beka/update", true);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        xhttp.send("id="+userId+"&userId="+newUserIndex);
-        xhttp.onreadystatechange = function() {
+        xhttp.send("id=" + userId + "&userId=" + newUserIndex);
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                document.open();
+                document.write(this.responseText);
+                document.close();
+            }
+        };
+    }
+    function changeBekaTeam(userId) {
+        var newUserIndex = document.getElementById('t' + userId).firstChild.value;
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "/admin/beka/update", true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.send("id=" + userId + "&teamId=" + newUserIndex);
+        xhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 document.open();
                 document.write(this.responseText);
