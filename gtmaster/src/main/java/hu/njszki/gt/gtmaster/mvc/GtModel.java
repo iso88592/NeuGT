@@ -7,9 +7,11 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 public class GtModel {
     private static GtModel instance;
+    private static Logger logger = Logger.getLogger(GtModel.class.getName());
 
     private SessionFactory sessionFactory;
 
@@ -62,9 +64,12 @@ public class GtModel {
         return instance;
     }
 
+    private static<T> List<T> getList(Session session, Class<T> c) {
+        return session.createQuery("FROM " + c.getName(), c).list();
+    }
+
     public List<User> getUsers(Session session) {
-        List<User> result = session.createQuery("FROM User", User.class).list();
-        return result;
+        return getList(session, User.class);
     }
 
 
@@ -73,7 +78,7 @@ public class GtModel {
     }
 
     private Role findRole(Session session, String roleName) {
-        List<Role> roles = session.createQuery("FROM Role", Role.class).list();
+        List<Role> roles = getList(session, Role.class);
         for (Role role : roles) {
             if (role.getName().equals(roleName)) return role;
         }
@@ -85,5 +90,13 @@ public class GtModel {
     }
     public Role userRole(Session session) {
         return findRole(session, "USER");
+    }
+
+    public List<Beka> getBekas(Session session) {
+        return getList(session, Beka.class);
+    }
+
+    public List<BekaTeam> getTeams(Session session) {
+        return getList(session, BekaTeam.class);
     }
 }

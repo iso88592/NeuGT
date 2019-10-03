@@ -16,6 +16,66 @@ public class Beka {
     @OneToOne
     private User user;
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public String getName() {
+        return getUser().getUserName();
+    }
+
+    public int getUserId() {
+        return getUser().getId();
+    }
+    public int getTeamId() {
+        if (getBekaTeam() == null) return -1;
+        return getBekaTeam().getId();
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public BekaTeam getBekaTeam() {
+        return bekaTeam;
+    }
+
+    public void setBekaTeam(BekaTeam bekaTeam) {
+        this.bekaTeam = bekaTeam;
+    }
+
+    public byte[] getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(byte[] photo) {
+        this.photo = photo;
+    }
+
+    public String getGreeting() {
+        return greeting;
+    }
+
+    public void setGreeting(String greeting) {
+        this.greeting = greeting;
+    }
+
+    public List<Event> getResponsibleFor() {
+        return responsibleFor;
+    }
+
+    public void setResponsibleFor(List<Event> responsibleFor) {
+        this.responsibleFor = responsibleFor;
+    }
+
     @ManyToOne
     private BekaTeam bekaTeam;
 
@@ -28,4 +88,5 @@ public class Beka {
     @JsonIgnore
     @OneToMany(mappedBy = "responsible")
     private List<Event> responsibleFor = new LinkedList<>();
+
 }

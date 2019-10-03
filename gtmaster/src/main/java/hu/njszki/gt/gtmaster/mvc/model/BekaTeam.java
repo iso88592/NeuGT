@@ -16,4 +16,38 @@ public class BekaTeam {
     @OneToMany(mappedBy = "bekaTeam")
     private List<Beka> bekas = new LinkedList<>();
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public List<Golya> getGolyas() {
+        return golyas;
+    }
+
+    public void setGolyas(List<Golya> golyas) {
+        this.golyas = golyas;
+    }
+
+    public List<Beka> getBekas() {
+        return bekas;
+    }
+
+    public void setBekas(List<Beka> bekas) {
+        this.bekas = bekas;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    private String name;
+
 }
