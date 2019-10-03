@@ -4,58 +4,81 @@ ul {
     padding: 0;
     overflow: hidden;
     background-color: #333;
-  }
-  
-  li {
+}
+
+li {
     float: left;
-  }
-  
-  li a {
+}
+
+li a {
     display: block;
     color: white;
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
-  }
-  
-  li a:hover {
-    background-color: #111;
-  }
-  body{ 
-    float: left;
-    margin-top:15px; 
-    margin-right:30px; 
-    margin-bottom:15px; 
-    margin-left:30px; 
-  }
-.tablazat{
-    text-align:center;
 }
-header{
-      text-align: center;
-  }
+
+li a:hover {
+    background-color: #111;
+}
+
+body {
+    float: left;
+    margin: 15px 30px;
+}
+
+.tablazat {
+    text-align: center;
+}
+
+.tablazat td {
+    padding: 0px;
+}
+
+.tablazat tbody tr:nth-child(even) {
+    background-color: beige;
+}
+
+.tablazat tbody tr:nth-child(odd) {
+    background-color: azure;
+}
+
+.tablazat thead {
+    background-color: antiquewhite;
+}
+
+.tablazat tbody tr:last-child {
+    background-color: antiquewhite;
+}
+
+header {
+    text-align: center;
+}
+
 .button {
-	background-color: rgba(70, 70, 70, 0.808);
-	border: none;
-	color: white;
-	padding: 8px 12px;
-	text-align: center;
-	text-decoration: none;
-	display: inline-block;
+    background-color: rgba(70, 70, 70, 0.808);
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
     font-size: 12px;
     border-radius: 12px;
     -webkit-transition-duration: 0.4s; /* Safari */
     transition-duration: 0.4s;
 }
+
 .button:hover {
     background-color: rgba(27, 201, 65, 0.863); /* Green */
     color: white;
-  }
-  input{
+}
+
+input {
     padding: 8px 12px;
     margin: 8px 0;
     display: inline-block;
     border: 1px solid #ccc;
     border-radius: 12px;
     box-sizing: border-box;
-  }
+}
