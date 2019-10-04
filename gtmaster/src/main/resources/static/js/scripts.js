@@ -55,3 +55,14 @@ function changeGolyaClass(userId) {
 function changeGolyaHouse(userId) {
     commitRequest("h", userId, "/admin/golya/update", "house", true);
 }
+
+function changeBekaName(userId) {
+    commitRequest("n", userId, "/admin/beka/update", "fullName", false);
+}
+function changeCalendarLeader(userId) {
+    commitRequest("l", userId, "/admin/calendar/update", "leader", true);
+}
+
+function changeCalendarDeputy(userId) {
+    commitRequest("d", userId, "/admin/calendar/update", "deputy", true);
+}

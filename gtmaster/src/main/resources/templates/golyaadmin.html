@@ -39,19 +39,19 @@
                     <div
                             th:id="${'t' + golya.id}"
                             th:insert="golyaadmin.html :: teams"
-                            th:with="selected=${golya.getTeamId()}, change=${'changeGolyaTeam(''' + golya.id + ''');'}"></div>
+                            th:with="change=${'changeGolyaTeam(''' + golya.id + ''');'}"></div>
                 </td>
                 <td>
                     <div
                             th:id="${'c' + golya.id}"
                             th:insert="golyaadmin.html :: classes"
-                            th:with="selected=${golya.classLetter}, change=${'changeGolyaClass(''' + golya.id + ''');'}"></div>
+                            th:with="change=${'changeGolyaClass(''' + golya.id + ''');'}"></div>
                 </td>
                 <td>
                     <div
                             th:id="${'h' + golya.id}"
                             th:insert="golyaadmin.html :: houses"
-                            th:with="selected=${golya.houseNumber}, change=${'changeGolyaHouse(''' + golya.id + ''');'}"></div>
+                            th:with="change=${'changeGolyaHouse(''' + golya.id + ''');'}"></div>
                 </td>
                 <td>
                     <div
@@ -88,21 +88,21 @@
                         <select th:fragment="teams" name="team" th:attr="onchange=${change}">
                             <option th:each="team, rowStat: ${teams}" th:text="${team.name}"
                                     th:value="${team.id}"
-                                    th:selected="${team.id==selected}"></option>
+                                    th:selected="${team.id == golya?.getTeamId()}"></option>
                         </select>
                     </td>
                     <td>
                         <select th:fragment="classes" name="classes" th:attr="onchange=${change}">
                             <option th:each="class, rowStat: ${classes}" th:text="${class}"
                                     th:value="${class}"
-                                    th:selected="${class==selected}"></option>
+                                    th:selected="${class == golya?.classLetter}"></option>
                         </select>
                     </td>
                     <td>
                         <select th:fragment="houses" name="house" th:attr="onchange=${change}">
                             <option th:each="house, rowStat: ${houses}" th:text="${house}"
                                     th:value="${house}"
-                                    th:selected="${house==selected}"></option>
+                                    th:selected="${house == golya?.houseNumber}"></option>
                         </select>
                     </td>
                     <td>

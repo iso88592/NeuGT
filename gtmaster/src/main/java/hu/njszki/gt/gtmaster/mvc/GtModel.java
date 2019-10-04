@@ -1,6 +1,7 @@
 package hu.njszki.gt.gtmaster.mvc;
 
 import hu.njszki.gt.gtmaster.mvc.model.*;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -53,6 +54,8 @@ public class GtModel {
         session.close();
     }
 
+
+
     public Session openSession() {
         return sessionFactory.openSession();
     }
@@ -102,5 +105,33 @@ public class GtModel {
 
     public List<Golya> getGolyas(Session session) {
         return getList(session, Golya.class);
+    }
+
+    public List<Event> getEvents(Session session) {
+        return getList(session, Event.class);
+    }
+
+    public List<Calendar> getCalendars(Session session) {
+        return getList(session, Calendar.class);
+    }
+
+    public static ImmutablePair events(Session session) {
+        return new ImmutablePair<>("events", getInstance().getEvents(session));
+    }
+    public static ImmutablePair bekas(Session session) {
+        return new ImmutablePair<>("bekas", getInstance().getBekas(session));
+    }
+    public static ImmutablePair users(Session session) {
+        return new ImmutablePair<>("gtusers", getInstance().getUsers(session));
+    }
+
+    public static ImmutablePair calendars(Session session) {
+        return new ImmutablePair<>("calendars", getInstance().getCalendars(session));
+    }
+    public static ImmutablePair teams(Session session) {
+        return new ImmutablePair<>("teams", getInstance().getTeams(session));
+    }
+    public static ImmutablePair golyas(Session session) {
+        return new ImmutablePair<>("golyas", getInstance().getGolyas(session));
     }
 }

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="https://thymeleaf.org" lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}"></title>
+    <link rel="stylesheet" type="text/css" href="../static/css/szopki.css" th:href="@{/css/szopki.css}">
+    <script type="text/javascript" src="../static/js/scripts.js" th:src="@{/js/scripts.js}"></script>
+</head>
+<body>
+<div th:insert="admin.html :: header">
+</div>
+<div>
+    <h2>Naptárak:</h2>
+    <table class="tablazat">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Év</th>
+            <th>Táborvezető</th>
+            <th>Helyettes</th>
+            <th>Törlés</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="calendar, rowStat: ${calendars}">
+            <td th:text="${calendar.id}"></td>
+            <td th:text="${calendar.year}"></td>
+            <td>
+                <div
+                        th:id="${'l' + calendar.id}"
+                        th:insert="events.html :: leader"
+                        th:with="change=${'changeCalendarLeader(''' + calendar.id + ''');'}"></div>
+            </td>
+            <td>
+                <div
+                        th:id="${'d' + calendar.id}"
+                        th:insert="events.html :: deputy"
+                        th:with="change=${'changeCalendarDeputy(''' + calendar.id + ''');'}"></div>
+            </td>
+           <td>
+                <form method="post" action="/admin/calendar/rm">
+                    <input type="hidden" th:value="${calendar.id}" name="id">
+                    <input type="submit" value="X">
+                </form>
+            </td>
+        </tr>
+        <tr>
+            <form action="/admin/calendar/new">
+                <td>+</td>
+                <td th:fragment="year"><input type="number" name="year" th:value="${calendar?.year}"></td>
+                <td>
+                    <select th:fragment="leader" name="leader" th:attr="onchange=${change}">
+                        <option th:each="beka, rowStat: ${bekas}" th:text="${beka.fullName}"
+                                th:value="${beka.id}"
+                                th:selected="${beka.id==calendar?.leader?.id}"></option>
+                    </select>
+                </td>
+                <td>
+                    <select th:fragment="deputy" name="deputy" th:attr="onchange=${change}">
+                        <option th:each="beka, rowStat: ${bekas}" th:text="${beka.fullName}"
+                                th:value="${beka.id}"
+                                th:selected="${beka.id==calendar?.deputy?.id}"></option>
+                    </select>
+                </td>
+                <td><input type="submit" value="Mentés"></td>
+            </form>
+        </tr>
+        </tbody>
+    </table>
+    <!--    <h2>Események:</h2>-->
+    <!--    <div>-->
+    <!--        <table class="tablazat">-->
+    <!--            <thead>-->
+    <!--            <tr>-->
+    <!--                <th>Id</th>-->
+    <!--                <th>Esemény neve</th>-->
+    <!--                <th>Helyszín</th>-->
+    <!--                <th>Időtartam</th>-->
+    <!--                <th>Leírás</th>-->
+    <!--                <th>Felelős béka</th>-->
+    <!--                <th>Törlés</th>-->
+    <!--            </tr>-->
+    <!--            </thead>-->
+    <!--            <tbody>-->
+    <!--            <tr th:each="event, rowStat: ${events}">-->
+    <!--                <td th:text="event.id"></td>-->
+    <!--                <td>-->
+    <!--                    <form method="post" action="/admin/events/rm">-->
+    <!--                        <input type="hidden" th:value="${event.id}" name="id">-->
+    <!--                        <input type="submit" value="X">-->
+    <!--                    </form>-->
+    <!--                </td>-->
+    <!--            </tr>-->
+    <!--            <tr>-->
+    <!--                <td colspan="5" style="background-color: gray"></td>-->
+    <!--            </tr>-->
+    <!--            <tr>-->
+    <!--                <form method="post" action="/admin/events/new">-->
+    <!--                    <td>+</td>-->
+    <!--                    <td>-->
+    <!--                        <select th:fragment="userNames" name="userName" th:attr="onchange=${change}">-->
+    <!--                            <option th:each="user, rowStat: ${gtusers}" th:text="${user.userName}"-->
+    <!--                                    th:value="${user.id}"-->
+    <!--                                    th:selected="${user.id==selected}"></option>-->
+    <!--                        </select>-->
+    <!--                    </td>-->
+    <!--                    <td>-->
+    <!--                        <select th:fragment="teams" name="team" th:attr="onchange=${change}">-->
+    <!--                            <option th:each="team, rowStat: ${teams}" th:text="${team.name}"-->
+    <!--                                    th:value="${team.id}"-->
+    <!--                                    th:selected="${team.id==selected}"></option>-->
+    <!--                        </select>-->
+    <!--                    </td>-->
+    <!--                    <td><input type="submit" value="hozzáad"></td>-->
+    <!--                </form>-->
+    <!--            </tr>-->
+    <!--            </tbody>-->
+    <!--        </table>-->
+    <!--    </div>-->
+</div>
+</body>
+</html>

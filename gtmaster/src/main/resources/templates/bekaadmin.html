@@ -17,6 +17,7 @@
             <tr>
                 <th>Id</th>
                 <th>Felhasználónév</th>
+                <th>Teljes név</th>
                 <th>Csapat</th>
                 <th>Törlés</th>
             </tr>
@@ -30,7 +31,12 @@
                             th:insert="bekaadmin.html :: userNames"
                             th:with="selected=${beka.getUserId()}, change=${'changeBekaUser(''' + beka.id + ''');'}"></div>
                 </td>
-
+                <td>
+                    <div
+                            th:id="${'n' + beka.id}"
+                            th:insert="bekaadmin.html :: fullName"
+                            th:with="change=${'changeBekaName(''' + beka.id + ''');'}"></div>
+                </td>
                 <td>
                     <div
                             th:id="${'t' + beka.id}"
@@ -56,6 +62,9 @@
                                     th:value="${user.id}"
                                     th:selected="${user.id==selected}"></option>
                         </select>
+                    </td>
+                    <td>
+                        <input th:fragment="fullName" name="fullName" th:value="${beka?.fullName}" th:attr="onkeyup=${change}">
                     </td>
                     <td>
                         <select th:fragment="teams" name="team" th:attr="onchange=${change}">

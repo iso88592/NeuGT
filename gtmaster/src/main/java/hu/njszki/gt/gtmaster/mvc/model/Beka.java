@@ -89,4 +89,14 @@ public class Beka {
     @OneToMany(mappedBy = "responsible")
     private List<Event> responsibleFor = new LinkedList<>();
 
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    @Column
+    private String fullName;
 }

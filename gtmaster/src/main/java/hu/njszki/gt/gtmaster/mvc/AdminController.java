@@ -1,9 +1,7 @@
 package hu.njszki.gt.gtmaster.mvc;
 
-import hu.njszki.gt.gtmaster.mvc.model.Beka;
-import hu.njszki.gt.gtmaster.mvc.model.BekaTeam;
-import hu.njszki.gt.gtmaster.mvc.model.Golya;
-import hu.njszki.gt.gtmaster.mvc.model.User;
+import hu.njszki.gt.gtmaster.mvc.model.*;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -21,82 +18,188 @@ import java.util.logging.Logger;
 public class AdminController {
     private Logger logger = Logger.getLogger(AdminController.class.getName());
 
+    ModelAndView createView(String viewName, String title, ImmutablePair[] items) {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName(viewName);
+        modelAndView.addObject("title", title);
+        for (ImmutablePair item : items) {
+            modelAndView.addObject((String) item.left, item.right);
+        }
+        return modelAndView;
+    }
+
     @RequestMapping(path = "/")
     public ModelAndView root() {
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("index");
-        modelAndView.addObject("welcome", "Welcome!");
-        modelAndView.addObject("title", "Gólyatábor WebApp");
-        return modelAndView;
+        return createView(
+                "index",
+                "Gólyatábor Webapp",
+                new ImmutablePair[]{});
     }
 
     @RequestMapping(path = "/admin")
     public ModelAndView adminRoot() {
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("admin");
-        modelAndView.addObject("title", "Gólyatábor admin");
-        return modelAndView;
+        return createView(
+                "admin",
+                "Gólyatábor admin",
+                new ImmutablePair[]{});
     }
+
+    // user management
 
     @RequestMapping(path = "/admin/users")
     public ModelAndView adminUsers() {
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("useradmin");
-        modelAndView.addObject("title", "Gólyatábor admin");
         Session session = GtModel.getInstance().openSession();
-        modelAndView.addObject("gtusers", GtModel.getInstance().getUsers(session));
+        ModelAndView modelAndView = createView(
+                "useradmin",
+                "Gólyatábor admin",
+                new ImmutablePair[]{
+                        GtModel.users(session)});
         session.close();
         return modelAndView;
     }
+
+    // event management
+
+    // calendar management
+
+    @RequestMapping(path = "/admin/events")
+    public ModelAndView adminEvents() {
+        Session session = GtModel.getInstance().openSession();
+        ModelAndView modelAndView = createView(
+                "events",
+                "Gólyatábor admin",
+                new ImmutablePair[]{
+                        GtModel.events(session),
+                        GtModel.calendars(session),
+                        GtModel.bekas(session)
+                });
+        session.close();
+        return modelAndView;
+    }
+
+    // beka management
 
     @RequestMapping(path = "/admin/beka")
     public ModelAndView adminBeka() {
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("bekaadmin");
-        modelAndView.addObject("title", "Gólyatábor admin");
         Session session = GtModel.getInstance().openSession();
-        modelAndView.addObject("gtusers", GtModel.getInstance().getUsers(session));
-        modelAndView.addObject("teams", createTeamList(session));
-        modelAndView.addObject("bekas", GtModel.getInstance().getBekas(session));
+        ModelAndView modelAndView = createView(
+                "bekaadmin",
+                "Gólyatábor admin",
+                new ImmutablePair[]{
+                        GtModel.users(session),
+                        createTeamList(session),
+                        GtModel.bekas(session)
+                });
         session.close();
         return modelAndView;
     }
 
-    private List<BekaTeam> createTeamList(Session session) {
+    private ImmutablePair createTeamList(Session session) {
         List<BekaTeam> teams = GtModel.getInstance().getTeams(session);
         BekaTeam emptyTeam = new BekaTeam();
         emptyTeam.setId(-1);
         emptyTeam.setName("-- nincs --");
         teams.add(emptyTeam);
-        return teams;
+        return new ImmutablePair<>("teams", teams);
+    }
+
+    private ImmutablePair classes() {
+        String[] classes = {"-- nincs --", "9.A", "9.B", "9.C", "9.nyek", "9.E", "9.X"};
+        return new ImmutablePair<>("classes", classes);
+    }
+
+    private ImmutablePair houses() {
+        String[] houses = {
+                "-- nincs --",
+                "2. faház",
+                "3. faház",
+                "4. faház",
+                "5. faház",
+                "6. faház",
+                "7. faház",
+                "8. faház",
+                "9. faház",
+                "10. faház",
+                "11. faház",
+                "12. faház",
+                "13/1 kőház",
+                "13/2 kőház",
+                "13/3 kőház",
+                "13/4 kőház",
+                "14/1 kőház",
+                "14/2 kőház",
+                "14/3 kőház",
+                "14/4 kőház"};
+        return new ImmutablePair<>("houses", houses);
     }
 
     @RequestMapping(path = "/admin/golya")
     public ModelAndView adminGolya() {
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("golyaadmin");
-        modelAndView.addObject("title", "Gólyatábor admin");
         Session session = GtModel.getInstance().openSession();
-        modelAndView.addObject("golyas", GtModel.getInstance().getGolyas(session));
-        modelAndView.addObject("teams", createTeamList(session));
-        String[] classes = {"-- nincs --", "9.A", "9.B", "9.C", "9.nyek", "9.E", "9.X"};
-        String[] houses = {"-- nincs --", "1. faház", "2. faház", "3. faház", "4. faház", "5. faház", "6. faház"};
-        modelAndView.addObject("classes", classes);
-        modelAndView.addObject("houses", houses);
-
+        ModelAndView modelAndView = createView(
+                "golyaadmin",
+                "Gólyatábor admin",
+                new ImmutablePair[]{
+                        GtModel.users(session),
+                        createTeamList(session),
+                        GtModel.bekas(session),
+                        GtModel.golyas(session),
+                        classes(),
+                        houses()
+                });
         session.close();
         return modelAndView;
     }
 
     @RequestMapping(path = "/admin/team")
     public ModelAndView adminTeam() {
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("teamadmin");
-        modelAndView.addObject("title", "Gólyatábor admin");
         Session session = GtModel.getInstance().openSession();
-        modelAndView.addObject("teams", GtModel.getInstance().getTeams(session));
+        ModelAndView modelAndView = createView(
+                "teamadmin",
+                "Gólyatábor admin",
+                new ImmutablePair[]{
+                        GtModel.teams(session)
+                });
         session.close();
         return modelAndView;
+    }
+
+    @RequestMapping(path = "/admin/calendar/new")
+    public RedirectView newCalendar(@RequestParam int year,
+                                    @RequestParam int leader,
+                                    @RequestParam int deputy) {
+        Session session = GtModel.getInstance().openSession();
+        Transaction tx = session.beginTransaction();
+        Calendar calendar = new Calendar();
+        calendar.setYear(year);
+        calendar.setLeader(GtModel.getInstance().getBekas(session).stream().filter(x -> x.getId() == leader).findFirst().get());
+        calendar.setDeputy(GtModel.getInstance().getBekas(session).stream().filter(x -> x.getId() == deputy).findFirst().get());
+        session.save(calendar);
+        tx.commit();
+        session.close();
+
+        return new RedirectView("/admin/events");
+    }
+
+    @RequestMapping(path = "/admin/calendar/update")
+    public RedirectView updateCalendar(
+            @RequestParam int id,
+            @RequestParam(defaultValue = "0") int year,
+            @RequestParam(defaultValue = "0") int leader,
+            @RequestParam(defaultValue = "0") int deputy) {
+        Session session = GtModel.getInstance().openSession();
+        Transaction tx = session.beginTransaction();
+        Calendar calendar = GtModel.getInstance().getCalendars(session).stream().filter(x -> x.getId() == id).findFirst().get();
+        if (year != 0) calendar.setYear(year);
+        if (leader != 0)
+            calendar.setLeader(GtModel.getInstance().getBekas(session).stream().filter(x -> x.getId() == leader).findFirst().get());
+        if (deputy != 0)
+            calendar.setDeputy(GtModel.getInstance().getBekas(session).stream().filter(x -> x.getId() == deputy).findFirst().get());
+        session.save(calendar);
+        tx.commit();
+        session.close();
+
+        return new RedirectView("/admin/events");
     }
 
     @RequestMapping(path = "/admin/users/new", method = RequestMethod.POST)
@@ -129,13 +232,15 @@ public class AdminController {
 
     @RequestMapping(path = "/admin/beka/new", method = RequestMethod.POST)
     public RedirectView newBeka(@RequestParam int userName,
-                                @RequestParam int team) {
+                                @RequestParam int team,
+                                @RequestParam String fullName) {
         Session session = GtModel.getInstance().openSession();
         Transaction tx = session.beginTransaction();
         Beka beka = new Beka();
         if (team != -1) {
             beka.setBekaTeam(GtModel.getInstance().getTeams(session).stream().filter(x -> x.getId() == team).findFirst().get());
         }
+        beka.setFullName(fullName);
         beka.setUser(GtModel.getInstance().getUsers(session).stream().filter(x -> x.getId() == userName).findFirst().get());
         session.save(beka);
         tx.commit();
@@ -169,15 +274,15 @@ public class AdminController {
 
     @RequestMapping(path = "/admin/golya/update", method = RequestMethod.POST)
     public RedirectView updateGolya(@RequestParam int id,
-                                 @RequestParam(defaultValue = "") String name,
-                                 @RequestParam(defaultValue = "0") int team,
-                                 @RequestParam(defaultValue = "") String classes,
-                                 @RequestParam(defaultValue = "") String house,
-                                 @RequestParam(defaultValue = "") String phone,
-                                 @RequestParam(defaultValue = "") String parentPhone) {
+                                    @RequestParam(defaultValue = "") String name,
+                                    @RequestParam(defaultValue = "0") int team,
+                                    @RequestParam(defaultValue = "") String classes,
+                                    @RequestParam(defaultValue = "") String house,
+                                    @RequestParam(defaultValue = "") String phone,
+                                    @RequestParam(defaultValue = "") String parentPhone) {
         Session session = GtModel.getInstance().openSession();
         Transaction tx = session.beginTransaction();
-        Golya golya = GtModel.getInstance().getGolyas(session).stream().filter(x->x.getId() == id).findFirst().get();
+        Golya golya = GtModel.getInstance().getGolyas(session).stream().filter(x -> x.getId() == id).findFirst().get();
         if (team != 0) {
             if (team != -1) {
                 golya.setBekaTeam(GtModel.getInstance().getTeams(session).stream().filter(x -> x.getId() == team).findFirst().get());
@@ -219,20 +324,60 @@ public class AdminController {
         return new RedirectView("/admin/beka");
     }
 
+
+    @RequestMapping(path = "/admin/team/rm", method = RequestMethod.POST)
+    public RedirectView rmTeam(@RequestParam int id) {
+        Session session = GtModel.getInstance().openSession();
+        Transaction tx = session.beginTransaction();
+        BekaTeam toErase = GtModel.getInstance().getTeams(session).stream().filter(x -> x.getId() == id).findFirst().get();
+        session.delete(toErase);
+        tx.commit();
+        session.close();
+        return new RedirectView("/admin/team");
+    }
+
+    @RequestMapping(path = "/admin/calendar/rm", method = RequestMethod.POST)
+    public RedirectView rmCalendar(@RequestParam int id) {
+        Session session = GtModel.getInstance().openSession();
+        Transaction tx = session.beginTransaction();
+        Calendar toErase = GtModel.getInstance().getCalendars(session).stream().filter(x -> x.getId() == id).findFirst().get();
+        session.delete(toErase);
+        tx.commit();
+        session.close();
+        return new RedirectView("/admin/events");
+    }
+
+    @RequestMapping(path = "/admin/golya/rm", method = RequestMethod.POST)
+    public RedirectView rmGolya(@RequestParam int id) {
+        Session session = GtModel.getInstance().openSession();
+        Transaction tx = session.beginTransaction();
+        Golya toErase = GtModel.getInstance().getGolyas(session).stream().filter(x -> x.getId() == id).findFirst().get();
+        session.delete(toErase);
+        tx.commit();
+        session.close();
+        return new RedirectView("/admin/golya");
+    }
+
+
     @RequestMapping(path = "/admin/beka/update", method = RequestMethod.POST)
     public RedirectView updateBeka(@RequestParam int id,
                                    @RequestParam(defaultValue = "0") int userId,
-                                   @RequestParam(defaultValue = "0") int teamId) {
+                                   @RequestParam(defaultValue = "0") int teamId,
+                                   @RequestParam(defaultValue = "") String fullName) {
         Session session = GtModel.getInstance().openSession();
         Transaction tx = session.beginTransaction();
         Beka beka = GtModel.getInstance().getBeka(id, session);
-        if (userId != 0) beka.setUser(GtModel.getInstance().getUsers(session).stream().filter(x->x.getId() == userId).findFirst().get());
+        if (userId != 0)
+            beka.setUser(GtModel.getInstance().getUsers(session).stream().filter(x -> x.getId() == userId).findFirst().get());
         if (teamId != 0) {
             if (teamId == -1) {
                 beka.setBekaTeam(null);
             } else {
                 beka.setBekaTeam(GtModel.getInstance().getTeams(session).stream().filter(x -> x.getId() == teamId).findFirst().get());
             }
+        }
+        if (!fullName.equals("")) {
+            beka.setFullName(fullName);
         }
         session.save(beka);
         tx.commit();
