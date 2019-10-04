@@ -2,91 +2,56 @@ var timers = [];
 
 function timeEvent(key, fn, args, ms) {
     clearTimeout(timers[key]);
-    timers[key] = setTimeout(function() {
+    timers[key] = setTimeout(function () {
         fn(args);
     }, ms);
 }
 
-function changeGolyaName(userId) {
-    var newUserIndex = document.getElementById('n' + userId).firstChild.value;
+function commitRequest(prefix, id, url, field, reload) {
+    var userIndex = document.getElementById(prefix + id).firstChild.value;
     var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "/admin/golya/update", true);
+    xhttp.open("POST", url, true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhttp.send("id=" + userId + "&name=" + encodeURIComponent(newUserIndex));
+    xhttp.send("id=" + id + "&" + field + "=" + encodeURIComponent(userIndex));
+    if (reload) {
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                document.open();
+                document.write(this.responseText);
+                document.close();
+            }
+        };
+    }
+}
+
+function changeGolyaName(userId) {
+    commitRequest("n", userId, "/admin/golya/update", "name", false);
 }
 
 function changeGolyaPhone(userId) {
-    var newUserIndex = document.getElementById('ph' + userId).firstChild.value;
-    var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "/admin/golya/update", true);
-    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhttp.send("id=" + userId + "&phone=" + encodeURIComponent(newUserIndex));
+    commitRequest("ph", userId, "/admin/golya/update", "phone", false);
 }
 
 function changeGolyaParentPhone(userId) {
-    var newUserIndex = document.getElementById('pp' + userId).firstChild.value;
-    var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "/admin/golya/update", true);
-    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhttp.send("id=" + userId + "&parentPhone=" + encodeURIComponent(newUserIndex));
+    commitRequest("pp", userId, "/admin/golya/update", "parentPhone", false);
 }
 
 function changeBekaUser(userId) {
-    var newUserIndex = document.getElementById('u' + userId).firstChild.value;
-    var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "/admin/beka/update", true);
-    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhttp.send("id=" + userId + "&userId=" + newUserIndex);
-    xhttp.onreadystatechange = function () {
-        if (this.readyState === 4 && this.status === 200) {
-            document.open();
-            document.write(this.responseText);
-            document.close();
-        }
-    };
+    commitRequest("u", userId, "/admin/beka/update", "userId", true);
 }
 
 function changeBekaTeam(userId) {
-    var newUserIndex = document.getElementById('t' + userId).firstChild.value;
-    var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "/admin/beka/update", true);
-    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhttp.send("id=" + userId + "&teamId=" + newUserIndex);
-    xhttp.onreadystatechange = function () {
-        if (this.readyState === 4 && this.status === 200) {
-            document.open();
-            document.write(this.responseText);
-            document.close();
-        }
-    };
+    commitRequest("t", userId, "/admin/beka/update", "teamId", true);
 }
 
-function changeBekaUser(userId) {
-    var newUserIndex = document.getElementById('u' + userId).firstChild.value;
-    var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "/admin/beka/update", true);
-    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhttp.send("id=" + userId + "&userId=" + newUserIndex);
-    xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-            document.open();
-            document.write(this.responseText);
-            document.close();
-        }
-    };
+function changeGolyaTeam(userId) {
+    commitRequest("t", userId, "/admin/golya/update", "teamId", true);
 }
 
-function changeBekaTeam(userId) {
-    var newUserIndex = document.getElementById('t' + userId).firstChild.value;
-    var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "/admin/beka/update", true);
-    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhttp.send("id=" + userId + "&teamId=" + newUserIndex);
-    xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-            document.open();
-            document.write(this.responseText);
-            document.close();
-        }
-    };
+function changeGolyaClass(userId) {
+    commitRequest("c", userId, "/admin/golya/update", "classes", true);
+}
+
+function changeGolyaHouse(userId) {
+    commitRequest("h", userId, "/admin/golya/update", "house", true);
 }
