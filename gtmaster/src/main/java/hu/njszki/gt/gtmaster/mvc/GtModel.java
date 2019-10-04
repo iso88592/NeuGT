@@ -99,4 +99,8 @@ public class GtModel {
     public List<BekaTeam> getTeams(Session session) {
         return getList(session, BekaTeam.class);
     }
+
+    public List<Golya> getGolyas(Session session) {
+        return getList(session, Golya.class);
+    }
 }

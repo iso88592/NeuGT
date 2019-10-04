@@ -2,6 +2,7 @@ package hu.njszki.gt.gtmaster.mvc;
 
 import hu.njszki.gt.gtmaster.mvc.model.Beka;
 import hu.njszki.gt.gtmaster.mvc.model.BekaTeam;
+import hu.njszki.gt.gtmaster.mvc.model.Golya;
 import hu.njszki.gt.gtmaster.mvc.model.User;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -12,10 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 @RestController
 public class AdminController {
+    private Logger logger = Logger.getLogger(AdminController.class.getName());
+
     @RequestMapping(path = "/")
     public ModelAndView root() {
         ModelAndView modelAndView = new ModelAndView();
@@ -51,13 +56,34 @@ public class AdminController {
         modelAndView.addObject("title", "Gólyatábor admin");
         Session session = GtModel.getInstance().openSession();
         modelAndView.addObject("gtusers", GtModel.getInstance().getUsers(session));
+        modelAndView.addObject("teams", createTeamList(session));
+        modelAndView.addObject("bekas", GtModel.getInstance().getBekas(session));
+        session.close();
+        return modelAndView;
+    }
+
+    private List<BekaTeam> createTeamList(Session session) {
         List<BekaTeam> teams = GtModel.getInstance().getTeams(session);
         BekaTeam emptyTeam = new BekaTeam();
         emptyTeam.setId(-1);
         emptyTeam.setName("-- nincs --");
         teams.add(emptyTeam);
-        modelAndView.addObject("teams", teams);
-        modelAndView.addObject("bekas", GtModel.getInstance().getBekas(session));
+        return teams;
+    }
+
+    @RequestMapping(path = "/admin/golya")
+    public ModelAndView adminGolya() {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("golyaadmin");
+        modelAndView.addObject("title", "Gólyatábor admin");
+        Session session = GtModel.getInstance().openSession();
+        modelAndView.addObject("golyas", GtModel.getInstance().getGolyas(session));
+        modelAndView.addObject("teams", createTeamList(session));
+        String[] classes = {"-- nincs --", "9.A", "9.B", "9.C", "9.nyek", "9.E", "9.X"};
+        String[] houses = {"-- nincs --", "1. faház", "2. faház", "3. faház", "4. faház", "5. faház", "6. faház"};
+        modelAndView.addObject("classes", classes);
+        modelAndView.addObject("houses", houses);
+
         session.close();
         return modelAndView;
     }
@@ -115,6 +141,71 @@ public class AdminController {
         tx.commit();
         session.close();
         return new RedirectView("/admin/beka");
+    }
+
+    @RequestMapping(path = "/admin/golya/new", method = RequestMethod.POST)
+    public RedirectView newGolya(@RequestParam String name,
+                                 @RequestParam int team,
+                                 @RequestParam String classes,
+                                 @RequestParam String house,
+                                 @RequestParam String phone,
+                                 @RequestParam String parentPhone) {
+        Session session = GtModel.getInstance().openSession();
+        Transaction tx = session.beginTransaction();
+        Golya golya = new Golya();
+        if (team != -1) {
+            golya.setBekaTeam(GtModel.getInstance().getTeams(session).stream().filter(x -> x.getId() == team).findFirst().get());
+        }
+        golya.setName(name);
+        golya.setClassLetter(classes);
+        golya.setHouseNumber(house);
+        golya.setPhone(phone);
+        golya.setParentPhone(parentPhone);
+        session.save(golya);
+        tx.commit();
+        session.close();
+        return new RedirectView("/admin/golya");
+    }
+
+    @RequestMapping(path = "/admin/golya/update", method = RequestMethod.POST)
+    public RedirectView updateGolya(@RequestParam int id,
+                                 @RequestParam(defaultValue = "") String name,
+                                 @RequestParam(defaultValue = "0") int team,
+                                 @RequestParam(defaultValue = "") String classes,
+                                 @RequestParam(defaultValue = "") String house,
+                                 @RequestParam(defaultValue = "") String phone,
+                                 @RequestParam(defaultValue = "") String parentPhone) {
+        Session session = GtModel.getInstance().openSession();
+        Transaction tx = session.beginTransaction();
+        Golya golya = GtModel.getInstance().getGolyas(session).stream().filter(x->x.getId() == id).findFirst().get();
+        if (team != 0) {
+            if (team != -1) {
+                golya.setBekaTeam(GtModel.getInstance().getTeams(session).stream().filter(x -> x.getId() == team).findFirst().get());
+            } else {
+                golya.setBekaTeam(null);
+            }
+        }
+        if (!name.equals("")) {
+            golya.setName(name);
+        }
+        if (!classes.equals("")) {
+            golya.setClassLetter(classes);
+        }
+        if (!house.equals("")) {
+            golya.setHouseNumber(house);
+        }
+        if (!phone.equals("")) {
+            logger.info(phone);
+            golya.setPhone(phone);
+        }
+        if (!parentPhone.equals("")) {
+            logger.info(parentPhone);
+            golya.setParentPhone(parentPhone);
+        }
+        session.save(golya);
+        tx.commit();
+        session.close();
+        return new RedirectView("/admin/golya");
     }
 
     @RequestMapping(path = "/admin/beka/rm", method = RequestMethod.POST)
