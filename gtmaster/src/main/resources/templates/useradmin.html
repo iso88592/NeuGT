@@ -4,14 +4,16 @@
     <meta charset="UTF-8">
     <title th:text="${title}"></title>
     <link rel="stylesheet" type="text/css" href="../static/css/szopki.css" th:href="@{/css/szopki.css}">
+    <script src="https://kit.fontawesome.com/97806b6d0c.js" crossorigin="anonymous"></script>
 </head>
 <body>
 <div th:insert="admin.html :: header">
 </div>
 <div>
-      
 
-    <h2>Felhasználók:</h2><hr>
+
+    <h2>Felhasználók:</h2>
+    <hr>
 
     <div class="tablazat">
         <table>
@@ -32,20 +34,21 @@
                     <form method="post" action="/admin/users/chpass">
                         <input type="hidden" th:value="${gtuser.id}" name="id">
                         <input type="password" name="password">
-                        <input type="submit" value="Jelszó módosítása">
+                        <button type="submit" value="Jelszó módosítása"><i class="fas fa-unlock"></i></button>
                     </form>
                 </td>
 
                 <td>
                     <form method="post" action="/admin/users/makeadmin">
                         <input type="hidden" th:value="${gtuser.id}" name="id">
-                        <input type="submit" th:value="${gtuser.isAdmin()} ? '-' : '+'">
+                        <button type="submit"><i class="fas"
+                                                 th:classappend="${gtuser.isAdmin()} ? fa-minus : fa-plus"></i></button>
                     </form>
                 </td>
                 <td>
                     <form method="post" action="/admin/users/rmuser">
                         <input type="hidden" th:value="${gtuser.id}" name="id">
-                        <input type="submit" value="X">
+                        <button type="submit" th:fragment="deleteButton"><i class="fas fa-trash-alt"></i></button>
                     </form>
                 </td>
             </tr>
@@ -54,11 +57,13 @@
             </tr>
             <tr>
                 <form method="post" action="/admin/users/new">
-                    <td>+</td>
+                    <td><i class="fas fa-plus"></i></td>
                     <td><input type="text" name="userName"></td>
                     <td><input type="password" name="password"></td>
                     <td><input type="checkbox" name="isAdmin"></td>
-                    <td><input type="submit" value="hozzáad"></td>
+                    <td>
+                        <button type="submit" th:fragment="addButton">Hozzáad <i class="fas fa-save"></i></button>
+                    </td>
                 </form>
             </tr>
             </tbody>

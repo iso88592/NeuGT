@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title th:text="${title}"></title>
     <link rel="stylesheet" type="text/css" href="../static/css/szopki.css" th:href="@{/css/szopki.css}">
+    <script src="https://kit.fontawesome.com/97806b6d0c.js" crossorigin="anonymous"></script>
 </head>
 <body>
 <div th:insert="admin.html :: header">
@@ -11,7 +12,8 @@
 <div>
 
 
-    <h2>Csapatok:</h2><hr>
+    <h2>Csapatok:</h2>
+    <hr>
 
     <div>
         <table class="tablazat">
@@ -30,7 +32,7 @@
                 <td>
                     <form method="post" action="/admin/team/rm">
                         <input type="hidden" th:value="${team.id}" name="id">
-                        <input type="submit" value="X">
+                        <div th:replace="useradmin.html :: deleteButton"></div>
                     </form>
                 </td>
             </tr>
@@ -41,7 +43,7 @@
                 <form method="post" action="/admin/team/new">
                     <td>+</td>
                     <td><input type="text" name="name"></td>
-                    <td><input type="submit" value="hozzáad"></td>
+                    <td th:insert="useradmin.html :: addButton"></td>
                 </form>
             </tr>
             </tbody>

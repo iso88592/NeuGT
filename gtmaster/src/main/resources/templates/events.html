@@ -5,6 +5,7 @@
     <title th:text="${title}"></title>
     <link rel="stylesheet" type="text/css" href="../static/css/szopki.css" th:href="@{/css/szopki.css}">
     <script type="text/javascript" src="../static/js/scripts.js" th:src="@{/js/scripts.js}"></script>
+    <script src="https://kit.fontawesome.com/97806b6d0c.js" crossorigin="anonymous"></script>
 </head>
 <body>
 <div th:insert="admin.html :: header">
@@ -37,10 +38,10 @@
                         th:insert="events.html :: deputy"
                         th:with="change=${'changeCalendarDeputy(''' + calendar.id + ''');'}"></div>
             </td>
-           <td>
+            <td>
                 <form method="post" action="/admin/calendar/rm">
                     <input type="hidden" th:value="${calendar.id}" name="id">
-                    <input type="submit" value="X">
+                    <div th:replace="useradmin.html :: deleteButton"></div>
                 </form>
             </td>
         </tr>
