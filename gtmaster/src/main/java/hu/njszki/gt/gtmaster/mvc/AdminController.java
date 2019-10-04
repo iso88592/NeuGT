@@ -233,6 +233,7 @@ public class AdminController {
     @RequestMapping(path = "/admin/beka/new", method = RequestMethod.POST)
     public RedirectView newBeka(@RequestParam int userName,
                                 @RequestParam int team,
+                                @RequestParam String phone,
                                 @RequestParam String fullName) {
         Session session = GtModel.getInstance().openSession();
         Transaction tx = session.beginTransaction();
@@ -241,6 +242,7 @@ public class AdminController {
             beka.setBekaTeam(GtModel.getInstance().getTeams(session).stream().filter(x -> x.getId() == team).findFirst().get());
         }
         beka.setFullName(fullName);
+        beka.setPhone(phone);
         beka.setUser(GtModel.getInstance().getUsers(session).stream().filter(x -> x.getId() == userName).findFirst().get());
         session.save(beka);
         tx.commit();
@@ -363,6 +365,7 @@ public class AdminController {
     public RedirectView updateBeka(@RequestParam int id,
                                    @RequestParam(defaultValue = "0") int userId,
                                    @RequestParam(defaultValue = "0") int teamId,
+                                   @RequestParam(defaultValue = "") String phone,
                                    @RequestParam(defaultValue = "") String fullName) {
         Session session = GtModel.getInstance().openSession();
         Transaction tx = session.beginTransaction();
@@ -378,6 +381,9 @@ public class AdminController {
         }
         if (!fullName.equals("")) {
             beka.setFullName(fullName);
+        }
+        if (!phone.equals("")) {
+            beka.setPhone(phone);
         }
         session.save(beka);
         tx.commit();

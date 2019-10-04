@@ -66,3 +66,7 @@ function changeCalendarLeader(userId) {
 function changeCalendarDeputy(userId) {
     commitRequest("d", userId, "/admin/calendar/update", "deputy", true);
 }
+
+function changeBekaPhone(userId) {
+    commitRequest("p", userId, "/admin/beka/update", "phone", false);
+}

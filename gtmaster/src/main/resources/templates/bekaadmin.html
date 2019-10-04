@@ -18,6 +18,7 @@
                 <th>Id</th>
                 <th>Felhasználónév</th>
                 <th>Teljes név</th>
+                <th>Telefonszám</th>
                 <th>Csapat</th>
                 <th>Törlés</th>
             </tr>
@@ -35,7 +36,13 @@
                     <div
                             th:id="${'n' + beka.id}"
                             th:insert="bekaadmin.html :: fullName"
-                            th:with="change=${'changeBekaName(''' + beka.id + ''');'}"></div>
+                            th:with="change=${'timeEvent(''n' + beka.id + ''', changeBekaName, ''' + beka.id + ''', 500);'}"></div>
+                </td>
+                <td>
+                    <div
+                            th:id="${'p' + beka.id}"
+                            th:insert="bekaadmin.html :: phone"
+                            th:with="change=${'timeEvent(''n' + beka.id + ''', changeBekaPhone, ''' + beka.id + ''', 500);'}"></div>
                 </td>
                 <td>
                     <div
@@ -65,6 +72,9 @@
                     </td>
                     <td>
                         <input th:fragment="fullName" name="fullName" th:value="${beka?.fullName}" th:attr="onkeyup=${change}">
+                    </td>
+                    <td>
+                        <input th:fragment="phone" name="phone" th:value="${beka?.phone}" th:attr="onkeyup=${change}">
                     </td>
                     <td>
                         <select th:fragment="teams" name="team" th:attr="onchange=${change}">

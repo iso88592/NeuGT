@@ -99,4 +99,15 @@ public class Beka {
 
     @Column
     private String fullName;
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    @Column
+    private String phone;
 }
