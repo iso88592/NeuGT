@@ -63,7 +63,7 @@
                                 th:selected="${beka.id==calendar?.deputy?.id}"></option>
                     </select>
                 </td>
-                <td><input type="submit" value="Mentés"></td>
+                <td th:insert="useradmin.html :: addButton"></td>
             </form>
         </tr>
         </tbody>

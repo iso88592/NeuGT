@@ -360,6 +360,22 @@ public class AdminController {
         return new RedirectView("/admin/golya");
     }
 
+    @RequestMapping(path = "/admin/users/makeadmin", method = RequestMethod.POST)
+    public RedirectView makeAdmin(@RequestParam int id,
+                                  @RequestParam boolean admin) {
+        Session session = GtModel.getInstance().openSession();
+        Transaction tx = session.beginTransaction();
+        User user = GtModel.getInstance().getUsers(session).stream().filter(x->x.getId() == id).findFirst().get();
+        user.setAdmin(admin, session);
+        if (user.getUserName().equals("neugt") && !user.isAdmin()) {
+            user.setAdmin(true, session);
+        }
+        session.save(user);
+        tx.commit();
+        session.close();
+        return new RedirectView("/admin/users");
+    }
+
 
     @RequestMapping(path = "/admin/beka/update", method = RequestMethod.POST)
     public RedirectView updateBeka(@RequestParam int id,

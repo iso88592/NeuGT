@@ -1,5 +1,8 @@
 package hu.njszki.gt.gtmaster.mvc.model;
 
+import hu.njszki.gt.gtmaster.mvc.GtModel;
+import org.hibernate.Session;
+
 import javax.persistence.*;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,5 +53,13 @@ public class User {
             if (role.getName().equals("ADMIN")) return true;
         }
         return false;
+    }
+
+    public void setAdmin(boolean admin, Session session) {
+        if (admin) {
+            getRoles().add(GtModel.getInstance().adminRole(session));
+        } else {
+            getRoles().remove(GtModel.getInstance().adminRole(session));
+        }
     }
 }

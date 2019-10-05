@@ -41,7 +41,7 @@
                 <td>
                     <form method="post" action="/admin/users/makeadmin">
                         <input type="hidden" th:value="${gtuser.id}" name="id">
-                        <button type="submit"><i class="fas"
+                        <button type="submit" name="admin" th:value="${!gtuser.isAdmin()}"><i class="fas"
                                                  th:classappend="${gtuser.isAdmin()} ? fa-minus : fa-plus"></i></button>
                     </form>
                 </td>
