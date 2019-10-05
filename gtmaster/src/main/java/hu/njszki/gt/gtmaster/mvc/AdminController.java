@@ -1,6 +1,5 @@
 package hu.njszki.gt.gtmaster.mvc;
 
-import hu.njszki.gt.gtmaster.SpringSecurityConfig;
 import hu.njszki.gt.gtmaster.mvc.model.*;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.hibernate.Session;
@@ -25,6 +24,39 @@ public class AdminController {
     @Autowired
     PasswordEncoder passwordEncoder;
 
+    @Autowired
+    ApplicationContext applicationContext;
+
+    // misc
+
+    private void updateSecurityContext() {
+        // TODO: reconfigure security
+    }
+
+    private ImmutablePair createTeamList(Session session) {
+        List<BekaTeam> teams = GtModel.getInstance().getTeams(session);
+        BekaTeam emptyTeam = new BekaTeam();
+        emptyTeam.setId(-1);
+        emptyTeam.setName("-- nincs --");
+        teams.add(emptyTeam);
+        return new ImmutablePair<>("teams", teams);
+    }
+
+    private ImmutablePair classes() {
+        String[] classes = {"-- nincs --", "9.A", "9.B", "9.C", "9.nyek", "9.E", "9.X"};
+        return new ImmutablePair<>("classes", classes);
+    }
+
+    private ImmutablePair houses() {
+        return new ImmutablePair<>("houses", new String[]{
+                "-- nincs --", "2. faház"   , "3. faház"   ,
+                "4. faház"   , "5. faház"   , "6. faház"   ,
+                "7. faház"   , "8. faház"   , "9. faház"   ,
+                "10. faház"  , "11. faház"  , "12. faház"  ,
+                "13/1 kőház" , "13/2 kőház" , "13/3 kőház" ,
+                "13/4 kőház" , "14/1 kőház" , "14/2 kőház" ,
+                "14/3 kőház" , "14/4 kőház"});
+    }
 
     ModelAndView createView(String viewName, String title, ImmutablePair[] items) {
         ModelAndView modelAndView = new ModelAndView();
@@ -56,7 +88,7 @@ public class AdminController {
     // user management
 
     @RequestMapping(path = "/admin/users")
-    public ModelAndView adminUsers() {
+    public ModelAndView userView() {
         Session session = GtModel.getInstance().openSession();
         ModelAndView modelAndView = createView(
                 "useradmin",
@@ -67,12 +99,72 @@ public class AdminController {
         return modelAndView;
     }
 
-    // event management
+    @RequestMapping(path = "/admin/users/new", method = RequestMethod.POST)
+    public RedirectView userAdd(@RequestParam String userName,
+                                @RequestParam String password,
+                                @RequestParam(defaultValue = "false") boolean isAdmin) {
+        Session session = GtModel.getInstance().openSession();
+        Transaction tx = session.beginTransaction();
+        User user = new User();
+        user.setUserName(userName);
+        user.setPassword(passwordEncoder.encode(password));
+        user.getRoles().add(isAdmin ? GtModel.getInstance().adminRole(session) : GtModel.getInstance().userRole(session));
+        session.save(user);
+        tx.commit();
+        session.close();
+        updateSecurityContext();
+        return new RedirectView("/admin/users");
+    }
 
-    // calendar management
+    @RequestMapping(path = "/admin/users/makeadmin", method = RequestMethod.POST)
+    public RedirectView userAdmin(@RequestParam int id,
+                                  @RequestParam boolean admin) {
+        Session session = GtModel.getInstance().openSession();
+        Transaction tx = session.beginTransaction();
+        User user = GtModel.getInstance().getUsers(session).stream().filter(x -> x.getId() == id).findFirst().get();
+        user.setAdmin(admin, session);
+        if (user.getUserName().equals("neugt") && !user.isAdmin()) {
+            user.setAdmin(true, session);
+        }
+        session.save(user);
+        tx.commit();
+        session.close();
+        updateSecurityContext();
+        return new RedirectView("/admin/users");
+    }
+
+    @RequestMapping(path = "/admin/users/chpass", method = RequestMethod.POST)
+    public RedirectView userPassword(@RequestParam int id,
+                                     @RequestParam String password) {
+        Session session = GtModel.getInstance().openSession();
+        Transaction tx = session.beginTransaction();
+        User user = GtModel.getInstance().getUsers(session).stream().filter(x -> x.getId() == id).findFirst().get();
+        user.setPassword(passwordEncoder.encode(password));
+        session.save(user);
+        tx.commit();
+        session.close();
+        updateSecurityContext();
+        return new RedirectView("/admin/users");
+    }
+
+    @RequestMapping(path = "/admin/users/rmuser", method = RequestMethod.POST)
+    public RedirectView userDelete(@RequestParam int id) {
+        Session session = GtModel.getInstance().openSession();
+        Transaction tx = session.beginTransaction();
+        User user = GtModel.getInstance().getUsers(session).stream().filter(x -> x.getId() == id).findFirst().get();
+        if (!user.getUserName().equals("neugt")) {
+            session.delete(user);
+        }
+        tx.commit();
+        session.close();
+        updateSecurityContext();
+        return new RedirectView("/admin/users");
+    }
+
+    // event & calendar management
 
     @RequestMapping(path = "/admin/events")
-    public ModelAndView adminEvents() {
+    public ModelAndView calendarView() {
         Session session = GtModel.getInstance().openSession();
         ModelAndView modelAndView = createView(
                 "events",
@@ -86,95 +178,8 @@ public class AdminController {
         return modelAndView;
     }
 
-    // beka management
-
-    @RequestMapping(path = "/admin/beka")
-    public ModelAndView adminBeka() {
-        Session session = GtModel.getInstance().openSession();
-        ModelAndView modelAndView = createView(
-                "bekaadmin",
-                "Gólyatábor admin",
-                new ImmutablePair[]{
-                        GtModel.users(session),
-                        createTeamList(session),
-                        GtModel.bekas(session)
-                });
-        session.close();
-        return modelAndView;
-    }
-
-    private ImmutablePair createTeamList(Session session) {
-        List<BekaTeam> teams = GtModel.getInstance().getTeams(session);
-        BekaTeam emptyTeam = new BekaTeam();
-        emptyTeam.setId(-1);
-        emptyTeam.setName("-- nincs --");
-        teams.add(emptyTeam);
-        return new ImmutablePair<>("teams", teams);
-    }
-
-    private ImmutablePair classes() {
-        String[] classes = {"-- nincs --", "9.A", "9.B", "9.C", "9.nyek", "9.E", "9.X"};
-        return new ImmutablePair<>("classes", classes);
-    }
-
-    private ImmutablePair houses() {
-        String[] houses = {
-                "-- nincs --",
-                "2. faház",
-                "3. faház",
-                "4. faház",
-                "5. faház",
-                "6. faház",
-                "7. faház",
-                "8. faház",
-                "9. faház",
-                "10. faház",
-                "11. faház",
-                "12. faház",
-                "13/1 kőház",
-                "13/2 kőház",
-                "13/3 kőház",
-                "13/4 kőház",
-                "14/1 kőház",
-                "14/2 kőház",
-                "14/3 kőház",
-                "14/4 kőház"};
-        return new ImmutablePair<>("houses", houses);
-    }
-
-    @RequestMapping(path = "/admin/golya")
-    public ModelAndView adminGolya() {
-        Session session = GtModel.getInstance().openSession();
-        ModelAndView modelAndView = createView(
-                "golyaadmin",
-                "Gólyatábor admin",
-                new ImmutablePair[]{
-                        GtModel.users(session),
-                        createTeamList(session),
-                        GtModel.bekas(session),
-                        GtModel.golyas(session),
-                        classes(),
-                        houses()
-                });
-        session.close();
-        return modelAndView;
-    }
-
-    @RequestMapping(path = "/admin/team")
-    public ModelAndView adminTeam() {
-        Session session = GtModel.getInstance().openSession();
-        ModelAndView modelAndView = createView(
-                "teamadmin",
-                "Gólyatábor admin",
-                new ImmutablePair[]{
-                        GtModel.teams(session)
-                });
-        session.close();
-        return modelAndView;
-    }
-
     @RequestMapping(path = "/admin/calendar/new")
-    public RedirectView newCalendar(@RequestParam int year,
+    public RedirectView calendarNew(@RequestParam int year,
                                     @RequestParam int leader,
                                     @RequestParam int deputy) {
         Session session = GtModel.getInstance().openSession();
@@ -191,7 +196,7 @@ public class AdminController {
     }
 
     @RequestMapping(path = "/admin/calendar/update")
-    public RedirectView updateCalendar(
+    public RedirectView calendarUpdate(
             @RequestParam int id,
             @RequestParam(defaultValue = "0") int year,
             @RequestParam(defaultValue = "0") int leader,
@@ -211,37 +216,36 @@ public class AdminController {
         return new RedirectView("/admin/events");
     }
 
-    @RequestMapping(path = "/admin/users/new", method = RequestMethod.POST)
-    public RedirectView newUser(@RequestParam String userName,
-                                @RequestParam String password,
-                                @RequestParam(defaultValue = "false") boolean isAdmin) {
+    @RequestMapping(path = "/admin/calendar/rm", method = RequestMethod.POST)
+    public RedirectView calendarDelete(@RequestParam int id) {
         Session session = GtModel.getInstance().openSession();
         Transaction tx = session.beginTransaction();
-        User user = new User();
-        user.setUserName(userName);
-        user.setPassword(passwordEncoder.encode(password));
-        user.getRoles().add(isAdmin ? GtModel.getInstance().adminRole(session) : GtModel.getInstance().userRole(session));
-        session.save(user);
+        Calendar toErase = GtModel.getInstance().getCalendars(session).stream().filter(x -> x.getId() == id).findFirst().get();
+        session.delete(toErase);
         tx.commit();
         session.close();
-        updateSecurityContext();
-        return new RedirectView("/admin/users");
+        return new RedirectView("/admin/events");
     }
 
-    @RequestMapping(path = "/admin/team/new", method = RequestMethod.POST)
-    public RedirectView newUser(@RequestParam String name) {
+    // beka management
+
+    @RequestMapping(path = "/admin/beka")
+    public ModelAndView bekaView() {
         Session session = GtModel.getInstance().openSession();
-        Transaction tx = session.beginTransaction();
-        BekaTeam bekaTeam = new BekaTeam();
-        bekaTeam.setName(name);
-        session.save(bekaTeam);
-        tx.commit();
+        ModelAndView modelAndView = createView(
+                "bekaadmin",
+                "Gólyatábor admin",
+                new ImmutablePair[]{
+                        GtModel.users(session),
+                        createTeamList(session),
+                        GtModel.bekas(session)
+                });
         session.close();
-        return new RedirectView("/admin/team");
+        return modelAndView;
     }
 
     @RequestMapping(path = "/admin/beka/new", method = RequestMethod.POST)
-    public RedirectView newBeka(@RequestParam int userName,
+    public RedirectView bekaNew(@RequestParam int userName,
                                 @RequestParam int team,
                                 @RequestParam String phone,
                                 @RequestParam String fullName) {
@@ -260,8 +264,109 @@ public class AdminController {
         return new RedirectView("/admin/beka");
     }
 
+    @RequestMapping(path = "/admin/beka/update", method = RequestMethod.POST)
+    public RedirectView bekaUpdate(@RequestParam int id,
+                                   @RequestParam(defaultValue = "0") int userId,
+                                   @RequestParam(defaultValue = "0") int teamId,
+                                   @RequestParam(defaultValue = "") String phone,
+                                   @RequestParam(defaultValue = "") String fullName) {
+        Session session = GtModel.getInstance().openSession();
+        Transaction tx = session.beginTransaction();
+        Beka beka = GtModel.getInstance().getBeka(id, session);
+        if (userId != 0)
+            beka.setUser(GtModel.getInstance().getUsers(session).stream().filter(x -> x.getId() == userId).findFirst().get());
+        if (teamId != 0) {
+            if (teamId == -1) {
+                beka.setBekaTeam(null);
+            } else {
+                beka.setBekaTeam(GtModel.getInstance().getTeams(session).stream().filter(x -> x.getId() == teamId).findFirst().get());
+            }
+        }
+        if (!fullName.equals("")) {
+            beka.setFullName(fullName);
+        }
+        if (!phone.equals("")) {
+            beka.setPhone(phone);
+        }
+        session.save(beka);
+        tx.commit();
+        session.close();
+        return new RedirectView("/admin/beka");
+    }
+
+    @RequestMapping(path = "/admin/beka/rm", method = RequestMethod.POST)
+    public RedirectView bekaDelete(@RequestParam int id) {
+        Session session = GtModel.getInstance().openSession();
+        Transaction tx = session.beginTransaction();
+        Beka toErase = GtModel.getInstance().getBeka(id, session);
+        session.delete(toErase);
+        tx.commit();
+        session.close();
+        return new RedirectView("/admin/beka");
+    }
+
+
+    // team management
+
+    @RequestMapping(path = "/admin/team")
+    public ModelAndView teamView() {
+        Session session = GtModel.getInstance().openSession();
+        ModelAndView modelAndView = createView(
+                "teamadmin",
+                "Gólyatábor admin",
+                new ImmutablePair[]{
+                        GtModel.teams(session)
+                });
+        session.close();
+        return modelAndView;
+    }
+
+    @RequestMapping(path = "/admin/team/new", method = RequestMethod.POST)
+    public RedirectView teamNew(@RequestParam String name) {
+        Session session = GtModel.getInstance().openSession();
+        Transaction tx = session.beginTransaction();
+        BekaTeam bekaTeam = new BekaTeam();
+        bekaTeam.setName(name);
+        session.save(bekaTeam);
+        tx.commit();
+        session.close();
+        return new RedirectView("/admin/team");
+    }
+
+
+    @RequestMapping(path = "/admin/team/rm", method = RequestMethod.POST)
+    public RedirectView teamDelete(@RequestParam int id) {
+        Session session = GtModel.getInstance().openSession();
+        Transaction tx = session.beginTransaction();
+        BekaTeam toErase = GtModel.getInstance().getTeams(session).stream().filter(x -> x.getId() == id).findFirst().get();
+        session.delete(toErase);
+        tx.commit();
+        session.close();
+        return new RedirectView("/admin/team");
+    }
+
+    // golya management
+
+    @RequestMapping(path = "/admin/golya")
+    public ModelAndView golyaView() {
+        Session session = GtModel.getInstance().openSession();
+        ModelAndView modelAndView = createView(
+                "golyaadmin",
+                "Gólyatábor admin",
+                new ImmutablePair[]{
+                        GtModel.users(session),
+                        createTeamList(session),
+                        GtModel.bekas(session),
+                        GtModel.golyas(session),
+                        classes(),
+                        houses()
+                });
+        session.close();
+        return modelAndView;
+    }
+
     @RequestMapping(path = "/admin/golya/new", method = RequestMethod.POST)
-    public RedirectView newGolya(@RequestParam String name,
+    public RedirectView golyaNew(@RequestParam String name,
                                  @RequestParam int team,
                                  @RequestParam String classes,
                                  @RequestParam String house,
@@ -285,7 +390,7 @@ public class AdminController {
     }
 
     @RequestMapping(path = "/admin/golya/update", method = RequestMethod.POST)
-    public RedirectView updateGolya(@RequestParam int id,
+    public RedirectView golyaUpdate(@RequestParam int id,
                                     @RequestParam(defaultValue = "") String name,
                                     @RequestParam(defaultValue = "0") int team,
                                     @RequestParam(defaultValue = "") String classes,
@@ -325,42 +430,8 @@ public class AdminController {
         return new RedirectView("/admin/golya");
     }
 
-    @RequestMapping(path = "/admin/beka/rm", method = RequestMethod.POST)
-    public RedirectView rmBeka(@RequestParam int id) {
-        Session session = GtModel.getInstance().openSession();
-        Transaction tx = session.beginTransaction();
-        Beka toErase = GtModel.getInstance().getBeka(id, session);
-        session.delete(toErase);
-        tx.commit();
-        session.close();
-        return new RedirectView("/admin/beka");
-    }
-
-
-    @RequestMapping(path = "/admin/team/rm", method = RequestMethod.POST)
-    public RedirectView rmTeam(@RequestParam int id) {
-        Session session = GtModel.getInstance().openSession();
-        Transaction tx = session.beginTransaction();
-        BekaTeam toErase = GtModel.getInstance().getTeams(session).stream().filter(x -> x.getId() == id).findFirst().get();
-        session.delete(toErase);
-        tx.commit();
-        session.close();
-        return new RedirectView("/admin/team");
-    }
-
-    @RequestMapping(path = "/admin/calendar/rm", method = RequestMethod.POST)
-    public RedirectView rmCalendar(@RequestParam int id) {
-        Session session = GtModel.getInstance().openSession();
-        Transaction tx = session.beginTransaction();
-        Calendar toErase = GtModel.getInstance().getCalendars(session).stream().filter(x -> x.getId() == id).findFirst().get();
-        session.delete(toErase);
-        tx.commit();
-        session.close();
-        return new RedirectView("/admin/events");
-    }
-
     @RequestMapping(path = "/admin/golya/rm", method = RequestMethod.POST)
-    public RedirectView rmGolya(@RequestParam int id) {
+    public RedirectView golyaDelete(@RequestParam int id) {
         Session session = GtModel.getInstance().openSession();
         Transaction tx = session.beginTransaction();
         Golya toErase = GtModel.getInstance().getGolyas(session).stream().filter(x -> x.getId() == id).findFirst().get();
@@ -368,84 +439,5 @@ public class AdminController {
         tx.commit();
         session.close();
         return new RedirectView("/admin/golya");
-    }
-
-    @RequestMapping(path = "/admin/users/makeadmin", method = RequestMethod.POST)
-    public RedirectView makeAdmin(@RequestParam int id,
-                                  @RequestParam boolean admin) {
-        Session session = GtModel.getInstance().openSession();
-        Transaction tx = session.beginTransaction();
-        User user = GtModel.getInstance().getUsers(session).stream().filter(x->x.getId() == id).findFirst().get();
-        user.setAdmin(admin, session);
-        if (user.getUserName().equals("neugt") && !user.isAdmin()) {
-            user.setAdmin(true, session);
-        }
-        session.save(user);
-        tx.commit();
-        session.close();
-        updateSecurityContext();
-        return new RedirectView("/admin/users");
-    }
-
-    @RequestMapping(path = "/admin/users/rmuser", method = RequestMethod.POST)
-    public RedirectView deleteUser(@RequestParam int id) {
-        Session session = GtModel.getInstance().openSession();
-        Transaction tx = session.beginTransaction();
-        User user = GtModel.getInstance().getUsers(session).stream().filter(x->x.getId() == id).findFirst().get();
-        if (!user.getUserName().equals("neugt") ) {
-            session.delete(user);
-        }
-        tx.commit();
-        session.close();
-        updateSecurityContext();
-        return new RedirectView("/admin/users");
-    }
-
-    private void updateSecurityContext() {
-        // TODO: reconfigure security
-//        SecurityContextHolder.clearContext();
-//        SecurityContextHolder.createEmptyContext();
-//        SpringSecurityConfig config = new SpringSecurityConfig();
-//        config.setApplicationContext(applicationContext);
-//        try {
-//            config.init((WebSecurity) SecurityContextHolder.getContext().resetAuthentication().getPrincipal());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        SpringSecurityConfig.instance.resetAuthentication();
-//        Authentication auth = SecurityContextHolder.getContext().resetAuthentication();
-    }
-
-    @Autowired
-    ApplicationContext applicationContext;
-
-    @RequestMapping(path = "/admin/beka/update", method = RequestMethod.POST)
-    public RedirectView updateBeka(@RequestParam int id,
-                                   @RequestParam(defaultValue = "0") int userId,
-                                   @RequestParam(defaultValue = "0") int teamId,
-                                   @RequestParam(defaultValue = "") String phone,
-                                   @RequestParam(defaultValue = "") String fullName) {
-        Session session = GtModel.getInstance().openSession();
-        Transaction tx = session.beginTransaction();
-        Beka beka = GtModel.getInstance().getBeka(id, session);
-        if (userId != 0)
-            beka.setUser(GtModel.getInstance().getUsers(session).stream().filter(x -> x.getId() == userId).findFirst().get());
-        if (teamId != 0) {
-            if (teamId == -1) {
-                beka.setBekaTeam(null);
-            } else {
-                beka.setBekaTeam(GtModel.getInstance().getTeams(session).stream().filter(x -> x.getId() == teamId).findFirst().get());
-            }
-        }
-        if (!fullName.equals("")) {
-            beka.setFullName(fullName);
-        }
-        if (!phone.equals("")) {
-            beka.setPhone(phone);
-        }
-        session.save(beka);
-        tx.commit();
-        session.close();
-        return new RedirectView("/admin/beka");
     }
 }
