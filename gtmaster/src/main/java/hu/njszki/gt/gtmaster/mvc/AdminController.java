@@ -1,9 +1,13 @@
 package hu.njszki.gt.gtmaster.mvc;
 
+import hu.njszki.gt.gtmaster.SpringSecurityConfig;
 import hu.njszki.gt.gtmaster.mvc.model.*;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,6 +21,10 @@ import java.util.logging.Logger;
 @RestController
 public class AdminController {
     private Logger logger = Logger.getLogger(AdminController.class.getName());
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
 
     ModelAndView createView(String viewName, String title, ImmutablePair[] items) {
         ModelAndView modelAndView = new ModelAndView();
@@ -35,6 +43,7 @@ public class AdminController {
                 "Gólyatábor Webapp",
                 new ImmutablePair[]{});
     }
+
 
     @RequestMapping(path = "/admin")
     public ModelAndView adminRoot() {
@@ -210,11 +219,12 @@ public class AdminController {
         Transaction tx = session.beginTransaction();
         User user = new User();
         user.setUserName(userName);
-        user.setPassword(password);
+        user.setPassword(passwordEncoder.encode(password));
         user.getRoles().add(isAdmin ? GtModel.getInstance().adminRole(session) : GtModel.getInstance().userRole(session));
         session.save(user);
         tx.commit();
         session.close();
+        updateSecurityContext();
         return new RedirectView("/admin/users");
     }
 
@@ -373,9 +383,41 @@ public class AdminController {
         session.save(user);
         tx.commit();
         session.close();
+        updateSecurityContext();
         return new RedirectView("/admin/users");
     }
 
+    @RequestMapping(path = "/admin/users/rmuser", method = RequestMethod.POST)
+    public RedirectView deleteUser(@RequestParam int id) {
+        Session session = GtModel.getInstance().openSession();
+        Transaction tx = session.beginTransaction();
+        User user = GtModel.getInstance().getUsers(session).stream().filter(x->x.getId() == id).findFirst().get();
+        if (!user.getUserName().equals("neugt") ) {
+            session.delete(user);
+        }
+        tx.commit();
+        session.close();
+        updateSecurityContext();
+        return new RedirectView("/admin/users");
+    }
+
+    private void updateSecurityContext() {
+        // TODO: reconfigure security
+//        SecurityContextHolder.clearContext();
+//        SecurityContextHolder.createEmptyContext();
+//        SpringSecurityConfig config = new SpringSecurityConfig();
+//        config.setApplicationContext(applicationContext);
+//        try {
+//            config.init((WebSecurity) SecurityContextHolder.getContext().resetAuthentication().getPrincipal());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        SpringSecurityConfig.instance.resetAuthentication();
+//        Authentication auth = SecurityContextHolder.getContext().resetAuthentication();
+    }
+
+    @Autowired
+    ApplicationContext applicationContext;
 
     @RequestMapping(path = "/admin/beka/update", method = RequestMethod.POST)
     public RedirectView updateBeka(@RequestParam int id,

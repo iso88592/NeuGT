@@ -6,6 +6,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -15,6 +17,9 @@ public class GtModel {
     private static Logger logger = Logger.getLogger(GtModel.class.getName());
 
     private SessionFactory sessionFactory;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     private GtModel() {
         sessionFactory = new Configuration()
@@ -39,12 +44,12 @@ public class GtModel {
             session.save(userRole);
             User testUser = new User();
             testUser.setUserName("alma");
-            testUser.setPassword("xyz");
+            testUser.setPassword(passwordEncoder.encode("xyz"));
             testUser.getRoles().add(userRole);
             session.save(testUser);
 
             testUser = new User();
-            testUser.setPassword("neugt");
+            testUser.setPassword(passwordEncoder.encode("neugt"));
             testUser.setUserName("neugt");
             testUser.getRoles().add(adminRole);
             session.save(testUser);
