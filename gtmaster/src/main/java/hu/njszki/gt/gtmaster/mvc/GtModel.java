@@ -7,6 +7,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
@@ -18,10 +19,10 @@ public class GtModel {
 
     private SessionFactory sessionFactory;
 
-    @Autowired
     PasswordEncoder passwordEncoder;
 
     private GtModel() {
+        passwordEncoder = new BCryptPasswordEncoder();
         sessionFactory = new Configuration()
                 .configure()
                 .addAnnotatedClass(Role.class)

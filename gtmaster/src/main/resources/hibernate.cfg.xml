@@ -24,7 +24,7 @@
             gtdb
         </property>
         
-        <property name="hbm2ddl.auto">update</property>
+<!--        <property name="hbm2ddl.auto">update</property>-->
 
 
     </session-factory>

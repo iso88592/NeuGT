@@ -28,7 +28,8 @@ public class AdminController {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        passwordEncoder = new BCryptPasswordEncoder();
+        return passwordEncoder;
     }
 
 
