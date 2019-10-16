@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="https://thymeleaf.org" lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}"></title>
+    <link rel="stylesheet" type="text/css" href="../static/css/szopki.css" th:href="@{/css/szopki.css}">
+    <script src="https://kit.fontawesome.com/97806b6d0c.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div th:fragment="header">
+    <header><h1><a href="/admin/">Admin</a></h1></header>
+    <nav class="menu">
+        <ul>
+            <li>
+                <a href="/admin/users">Felhasználók</a>
+            </li>
+            <li>
+                <a href="/admin/beka">Békák</a>
+            </li>
+            <li>
+                <a href="/admin/team">Csapatok</a>
+            </li>
+            <li>
+                <a href="/admin/golya">Gólyák</a>
+            </li>
+            <li>
+                <a href="/admin/events">Események</a>
+            </li>
+
+        </ul>
+    </nav>
+</div>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="https://thymeleaf.org" lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}"></title>
+    <link rel="stylesheet" type="text/css" href="../static/css/szopki.css" th:href="@{/css/szopki.css}">
+    <script type="text/javascript" src="../static/js/scripts.js" th:src="@{/js/scripts.js}"></script>
+    <script src="https://kit.fontawesome.com/97806b6d0c.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div th:insert="admin.html :: header">
+</div>
+<div>
+    <h2>Békák:</h2>
+    <div>
+        <table class="tablazat">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Felhasználónév</th>
+                <th>Teljes név</th>
+                <th>Telefonszám</th>
+                <th>Csapat</th>
+                <th>Törlés</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="beka, rowStat: ${bekas}">
+                <td><a th:href="${'/show/beka/'+beka.id}" th:text="${beka.id}"></a></td>
+                <td>
+                    <div
+                            th:id="${'u' + beka.id}"
+                            th:insert="bekaadmin.html :: userNames"
+                            th:with="selected=${beka.getUserId()}, change=${'changeBekaUser(''' + beka.id + ''');'}"></div>
+                </td>
+                <td>
+                    <div
+                            th:id="${'n' + beka.id}"
+                            th:insert="bekaadmin.html :: fullName"
+                            th:with="change=${'timeEvent(''n' + beka.id + ''', changeBekaName, ''' + beka.id + ''', 500);'}"></div>
+                </td>
+                <td>
+                    <div
+                            th:id="${'p' + beka.id}"
+                            th:insert="bekaadmin.html :: phone"
+                            th:with="change=${'timeEvent(''n' + beka.id + ''', changeBekaPhone, ''' + beka.id + ''', 500);'}"></div>
+                </td>
+                <td>
+                    <div
+                            th:id="${'t' + beka.id}"
+                            th:insert="bekaadmin.html :: teams"
+                            th:with="selected=${beka.getTeamId()}, change=${'changeBekaTeam(''' + beka.id + ''');'}"></div>
+                </td>
+                <td>
+                    <form method="post" action="/admin/beka/rm">
+                        <input type="hidden" th:value="${beka.id}" name="id">
+                        <div th:replace="useradmin.html :: deleteButton"></div>
+                    </form>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" style="background-color: gray"></td>
+            </tr>
+            <tr>
+                <form method="post" action="/admin/beka/new">
+                    <td>+</td>
+                    <td>
+                        <select th:fragment="userNames" name="userName" th:attr="onchange=${change}">
+                            <option th:each="user, rowStat: ${gtusers}" th:text="${user.userName}"
+                                    th:value="${user.id}"
+                                    th:selected="${user.id==selected}"></option>
+                        </select>
+                    </td>
+                    <td>
+                        <input th:fragment="fullName" name="fullName" th:value="${beka?.fullName}"
+                               th:attr="onkeyup=${change}">
+                    </td>
+                    <td>
+                        <input th:fragment="phone" name="phone" th:value="${beka?.phone}" th:attr="onkeyup=${change}">
+                    </td>
+                    <td>
+                        <select th:fragment="teams" name="team" th:attr="onchange=${change}">
+                            <option th:each="team, rowStat: ${teams}" th:text="${team.name}"
+                                    th:value="${team.id}"
+                                    th:selected="${team.id==selected}"></option>
+                        </select>
+                    </td>
+                    <td th:insert="useradmin.html :: addButton"></td>
+                </form>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
